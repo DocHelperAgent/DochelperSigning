@@ -412,18 +412,20 @@ function App() {
       // Update recipients status
       setRecipients(prev => prev.map(r => ({ ...r, status: 'pending' })));
       toast.success('Document sent successfully to all recipients!');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error sending document:', error);
-      toast.error(error.message || 'Failed to send document. Please try again.');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to send document. Please try again.'
+      );
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200`}>
+    <div className={`min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-200`}>
       <ToastContainer
-        position="top-right"
+        position="bottom-right"
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop
@@ -435,25 +437,27 @@ function App() {
         theme={darkMode ? 'dark' : 'light'}
       />
       
-      <header className="bg-white dark:bg-gray-800 shadow-sm">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <img 
-                src="https://dochelper.xyz/img/Logo.gif" 
-                alt="DocHelper Logo"
-                className="w-8 h-8 object-contain"
-              />
-              <h1 className="ml-3 text-2xl font-bold text-gray-900 dark:text-white">
-                DocHelper Signing
-              </h1>
-            </div>
             <div className="flex items-center space-x-4">
+              <div className="flex items-center">
+                <img 
+                  src="https://dochelper.xyz/img/Logo.gif" 
+                  alt="DocHelper Logo"
+                  className="w-10 h-10 object-contain rounded-lg"
+                />
+                <h1 className="ml-3 text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-300 bg-clip-text text-transparent">
+                  DocHelper Signing
+                </h1>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
               {!isAuthLoading && (
                 user ? (
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                    className="btn-secondary"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
@@ -461,7 +465,7 @@ function App() {
                 ) : (
                   <button
                     onClick={handleSignIn}
-                    className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                    className="btn-primary"
                   >
                     <LogIn className="w-4 h-4 mr-2" />
                     Sign In
@@ -470,14 +474,14 @@ function App() {
               )}
               <button
                 onClick={() => setShowRecipients(!showRecipients)}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                className="btn-secondary !p-2"
                 aria-label="Toggle recipients"
               >
                 <Users className="w-5 h-5" />
               </button>
               <button
                 onClick={toggleDarkMode}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                className="btn-secondary !p-2"
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -490,20 +494,29 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div className="space-y-8">
-            <div>
-              <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Load Document</h2>
+            <div className="animate-fade-in">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Load Document
+              </h2>
               {!selectedFile ? (
                 <DocumentUpload onFileSelect={handleFileSelect} />
               ) : (
-                <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-md">
-                    <p className="text-sm text-blue-700 dark:text-blue-200">
-                      Selected file: {selectedFile.name}
+                <div className="space-y-4 animate-slide-in">
+                  <div className="card p-4 border-blue-100 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/50">
+                    <p className="text-sm text-blue-700 dark:text-blue-200 flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {selectedFile.name}
                     </p>
                   </div>
                   {showRecipients && (
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                    <div className="card p-6 animate-slide-in">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                        <Users className="w-5 h-5 mr-2 text-blue-500" />
                         Co-signers
                       </h3>
                       <RecipientsList
@@ -515,7 +528,7 @@ function App() {
                         <button
                           onClick={handleSendToRecipients}
                           disabled={isSending}
-                          className="mt-4 w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                          className="btn-primary mt-4 w-full"
                         >
                           <Send className="w-4 h-4 mr-2" />
                           {isSending ? 'Sending...' : 'Send to Recipients'}
@@ -523,40 +536,55 @@ function App() {
                       )}
                     </div>
                   )}
-                  <DocumentViewer 
-                    file={selectedFile} 
-                    signatures={signatures.filter(sig => sig.page === currentPage)}
-                    stamps={stamps.filter(stamp => stamp.page === currentPage)}
-                    onPageChange={handlePageChange}
-                    onSignaturePositionChange={handleSignaturePositionChange}
-                    onSignatureSizeChange={handleSignatureSizeChange}
-                    onStampPositionChange={handleStampPositionChange}
-                    onStampSizeChange={handleStampSizeChange}
-                    onTimestampPositionChange={handleTimestampPositionChange}
-                    onTimestampSizeChange={handleTimestampSizeChange}
-                    onRemoveSignature={handleRemoveSignature}
-                    onRemoveStamp={handleRemoveStamp}
-                  />
+                  <div className="card p-4">
+                    <DocumentViewer 
+                      file={selectedFile} 
+                      signatures={signatures.filter(sig => sig.page === currentPage)}
+                      stamps={stamps.filter(stamp => stamp.page === currentPage)}
+                      onPageChange={handlePageChange}
+                      onSignaturePositionChange={handleSignaturePositionChange}
+                      onSignatureSizeChange={handleSignatureSizeChange}
+                      onStampPositionChange={handleStampPositionChange}
+                      onStampSizeChange={handleStampSizeChange}
+                      onTimestampPositionChange={handleTimestampPositionChange}
+                      onTimestampSizeChange={handleTimestampSizeChange}
+                      onRemoveSignature={handleRemoveSignature}
+                      onRemoveStamp={handleRemoveStamp}
+                    />
+                  </div>
                 </div>
               )}
             </div>
             
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add Signature</h2>
+            <div className="space-y-6 animate-fade-in">
+              <div className="card p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                  Add Signature
+                </h2>
                 <SignaturePad onSave={handleSignatureSave} />
               </div>
 
-              <div>
-                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add Stamp</h2>
+              <div className="card p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                  Add Stamp
+                </h2>
                 <StampUpload onSave={handleStampSave} />
               </div>
 
               {(signatures.length > 0 || stamps.length > 0) && (
-                <div className="space-y-4">
+                <div className="space-y-4 animate-slide-in">
                   {signatures.length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                    <div className="card p-6">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                        <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         Signatures and Timestamps
                       </h3>
                       <div className="space-y-4">
@@ -572,7 +600,7 @@ function App() {
                       </div>
                     </div>
                   )}
-                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-4">
+                  <div className="card p-6 space-y-4">
                     <div>
                       <label htmlFor="filename" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                         Export Filename
@@ -583,7 +611,7 @@ function App() {
                           id="filename"
                           value={customFilename}
                           onChange={(e) => setCustomFilename(e.target.value)}
-                          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                          className="input"
                           placeholder="Enter filename for the signed PDF"
                         />
                       </div>
@@ -591,7 +619,7 @@ function App() {
                     <button
                       onClick={handleGenerateSignedPDF}
                       disabled={isGenerating}
-                      className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                      className="btn-success w-full"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       {isGenerating ? 'Generating Signed PDF...' : 'Generate Signed PDF'}
@@ -603,22 +631,29 @@ function App() {
           </div>
 
           {selectedFile && (
-            <div className="lg:sticky lg:top-8">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Document Signing</h2>
-              <DocumentViewer 
-                file={selectedFile} 
-                signatures={signatures.filter(sig => sig.page === currentPage)}
-                stamps={stamps.filter(stamp => stamp.page === currentPage)}
-                onPageChange={handlePageChange}
-                onSignaturePositionChange={handleSignaturePositionChange}
-                onSignatureSizeChange={handleSignatureSizeChange}
-                onStampPositionChange={handleStampPositionChange}
-                onStampSizeChange={handleStampSizeChange}
-                onTimestampPositionChange={handleTimestampPositionChange}
-                onTimestampSizeChange={handleTimestampSizeChange}
-                onRemoveSignature={handleRemoveSignature}
-                onRemoveStamp={handleRemoveStamp}
-              />
+            <div className="lg:sticky lg:top-24 animate-fade-in">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Document Preview
+              </h2>
+              <div className="card p-4">
+                <DocumentViewer 
+                  file={selectedFile} 
+                  signatures={signatures.filter(sig => sig.page === currentPage)}
+                  stamps={stamps.filter(stamp => stamp.page === currentPage)}
+                  onPageChange={handlePageChange}
+                  onSignaturePositionChange={handleSignaturePositionChange}
+                  onSignatureSizeChange={handleSignatureSizeChange}
+                  onStampPositionChange={handleStampPositionChange}
+                  onStampSizeChange={handleStampSizeChange}
+                  onTimestampPositionChange={handleTimestampPositionChange}
+                  onTimestampSizeChange={handleTimestampSizeChange}
+                  onRemoveSignature={handleRemoveSignature}
+                  onRemoveStamp={handleRemoveStamp}
+                />
+              </div>
             </div>
           )}
         </div>
